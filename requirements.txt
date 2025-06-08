@@ -1,7 +1,7 @@
 streamlit
 transformers
 sentence-transformers
-PyMuPDF
-faiss-cpu
-langchain
 torch
+faiss-cpu
+PyMuPDF
+sentencepiece
