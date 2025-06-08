@@ -1,8 +1,6 @@
-streamlit
+gradio
 transformers
 sentence-transformers
 torch
-faiss-cpu
 PyMuPDF
-sentencepiece==0.1.99
-
+faiss-cpu

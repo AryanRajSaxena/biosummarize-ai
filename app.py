@@ -1,29 +1,30 @@
-import streamlit as st
+import gradio as gr
 from utils.pdf_parser import extract_text_from_pdf
 from summarizer import Summarizer
 from qa_engine import QABot
 
-st.title("🧬 BioSummarize.ai AI for Biotech Papers")
+summarizer = Summarizer()
 
-uploaded_file = st.file_uploader("Upload a research PDF", type="pdf")
-if uploaded_file:
-    with open("temp.pdf", "wb") as f:
-        f.write(uploaded_file.read())
+def process_pdf_and_qa(file, question):
+    text = extract_text_from_pdf(file.name)
+    summary = summarizer.summarize(text)
+    bot = QABot(text.split("\n\n"))
+    context = bot.retrieve_context(question)
+    return summary, context
 
-    text = extract_text_from_pdf("temp.pdf")
+iface = gr.Interface(
+    fn=process_pdf_and_qa,
+    inputs=[
+        gr.File(label="Upload Biotech Research Paper (PDF)"),
+        gr.Textbox(label="Ask a Question")
+    ],
+    outputs=[
+        gr.Textbox(label="Summary"),
+        gr.Textbox(label="Context Answer")
+    ],
+    title="🧬 BioSummarize.ai",
+    description="Summarize research papers and answer questions using BioBERT"
+)
 
-    if st.button("Generate Summary"):
-        summarizer = Summarizer()
-        summary = summarizer.summarize(text)
-        st.success("✅ Summary Generated:")
-        st.write(summary)
-
-    if st.button("Start Q&A"):
-        st.info("⚙️ Indexing content...")
-        chunks = text.split("\n\n")  # Basic chunking
-        bot = QABot(chunks)
-        question = st.text_input("Ask a question from the paper:")
-        if question:
-            answer_context = bot.retrieve_context(question)
-            st.success("Context:")
-            st.write(answer_context)
+if __name__ == "__main__":
+    iface.launch()
